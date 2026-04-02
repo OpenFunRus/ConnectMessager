@@ -2,6 +2,7 @@ import {
   ActivityLogType,
   DELETED_USER_IDENTITY_AND_NAME,
   OWNER_ROLE_ID,
+  hasTemporaryUserName,
   sha256,
   type TJoinedUser
 } from '@connectmessager/shared';
@@ -377,9 +378,7 @@ const loginRouteHandler = async (
       .execute();
   }
 
-  const hasTemporaryCmUserName =
-    existingUser.name.startsWith(AUTO_USER_ID_PREFIX) ||
-    existingUser.name === existingUser.identity;
+  const hasTemporaryCmUserName = hasTemporaryUserName(existingUser);
 
   if (pendingActivation || hasTemporaryCmUserName) {
     const nextName = (data.name || '').trim();

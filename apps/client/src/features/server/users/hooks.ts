@@ -10,7 +10,8 @@ import {
   userByIdSelector,
   usernamesSelector,
   usersSelector,
-  userStatusSelector
+  userStatusSelector,
+  visibleChatUsersSelector
 } from './selectors';
 
 export const useUsers = () => useSelector(usersSelector);
@@ -36,3 +37,5 @@ export const useUsernames = () => useSelector(usernamesSelector);
 export const useFilteredUsers = () => useSelector(filteredUsersSelector);
 
 export const useMentionableUsers = () => useSelector(mentionableUsersSelector);
+
+export const useVisibleChatUsers = () => useSelector(visibleChatUsersSelector);

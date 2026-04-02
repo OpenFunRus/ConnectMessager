@@ -1,4 +1,4 @@
-﻿import { UnreadCount } from '@/components/unread-count';
+import { UnreadCount } from '@/components/unread-count';
 import { UserAvatar } from '@/components/user-avatar';
 import { setSelectedDmChannelId } from '@/features/app/actions';
 import { useSelectedDmChannelId } from '@/features/app/hooks';
@@ -7,12 +7,13 @@ import { useUnreadMessagesCount } from '@/features/server/hooks';
 import {
   useOwnUserId,
   useUserById,
-  useUsers
+  useVisibleChatUsers
 } from '@/features/server/users/hooks';
 import { getTRPCClient } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import {
   DELETED_USER_IDENTITY_AND_NAME,
+  hasTemporaryUserName,
   type TDirectMessageConversation
 } from '@connectmessager/shared';
 import { Spinner } from '@connectmessager/ui';
@@ -61,7 +62,7 @@ const DirectMessages = memo(() => {
     TDirectMessageConversation[]
   >([]);
   const [query, setQuery] = useState('');
-  const users = useUsers();
+  const users = useVisibleChatUsers();
   const channels = useChannels();
   const ownUserId = useOwnUserId();
   const selectedDmChannelId = useSelectedDmChannelId();
@@ -96,6 +97,19 @@ const DirectMessages = memo(() => {
 
     return () => sub.unsubscribe();
   }, [fetchConversations]);
+
+  const visibleConversations = useMemo(
+    () =>
+      conversations.filter((dm) => {
+        const user = users.find((item) => item.id === dm.userId);
+        return (
+          !!user &&
+          user.name !== DELETED_USER_IDENTITY_AND_NAME &&
+          !hasTemporaryUserName(user)
+        );
+      }),
+    [conversations, users]
+  );
 
   const usersToStartDm = useMemo(() => {
     const directMessageUserIds = new Set(conversations.map((dm) => dm.userId));
@@ -146,7 +160,7 @@ const DirectMessages = memo(() => {
         </div>
       ) : (
         <div className="space-y-0.5">
-          {conversations.map((dm) => (
+          {visibleConversations.map((dm) => (
             <DirectMessageItem
               key={dm.channelId}
               dm={dm}
@@ -154,7 +168,7 @@ const DirectMessages = memo(() => {
               onSelect={() => setSelectedDmChannelId(dm.channelId)}
             />
           ))}
-          {conversations.length === 0 && (
+          {visibleConversations.length === 0 && (
             <div className="px-2 py-4 text-xs text-[#8fa2bb]">
               {t('noDMsYet')}
             </div>

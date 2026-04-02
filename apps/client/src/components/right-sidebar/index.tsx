@@ -1,10 +1,9 @@
-﻿import { ResizableSidebar } from '@/components/resizable-sidebar';
+import { ResizableSidebar } from '@/components/resizable-sidebar';
 import { UserAvatar } from '@/components/user-avatar';
 import { UserContextMenu } from '@/components/context-menus/user';
-import { useUsers } from '@/features/server/users/hooks';
+import { useVisibleChatUsers } from '@/features/server/users/hooks';
 import { LocalStorageKey } from '@/helpers/storage';
 import { cn } from '@/lib/utils';
-import { DELETED_USER_IDENTITY_AND_NAME } from '@connectmessager/shared';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserPopover } from '../user-popover';
@@ -61,16 +60,12 @@ type TRightSidebarProps = {
 const RightSidebar = memo(
   ({ className, isOpen = true }: TRightSidebarProps) => {
     const { t } = useTranslation('sidebar');
-    const users = useUsers();
+    const users = useVisibleChatUsers();
 
     const { usersToShow, usersCount } = useMemo(() => {
-      const filtered = users.filter(
-        (user) => user.name !== DELETED_USER_IDENTITY_AND_NAME
-      );
-
       return {
-        usersToShow: filtered.slice(0, MAX_USERS_TO_SHOW),
-        usersCount: filtered.length
+        usersToShow: users.slice(0, MAX_USERS_TO_SHOW),
+        usersCount: users.length
       };
     }, [users]);
 

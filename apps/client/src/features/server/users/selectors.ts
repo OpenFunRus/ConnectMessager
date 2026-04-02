@@ -1,6 +1,10 @@
-﻿import type { IRootState } from '@/features/store';
+import type { IRootState } from '@/features/store';
 import { createSelector } from '@reduxjs/toolkit';
-import { DELETED_USER_IDENTITY_AND_NAME, UserStatus } from '@connectmessager/shared';
+import {
+  DELETED_USER_IDENTITY_AND_NAME,
+  UserStatus,
+  hasTemporaryUserName
+} from '@connectmessager/shared';
 import { createCachedSelector } from 're-reselect';
 
 const STATUS_ORDER: Record<string, number> = {
@@ -34,19 +38,23 @@ export const usersSelector = createSelector(
   }
 );
 
-// returns all users except the own user and deleted users
-export const filteredUsersSelector = createSelector(
-  [usersSelector, ownUserIdSelector],
-  (users, ownUserId) =>
-    users.filter(
-      (user) =>
-        user.name !== DELETED_USER_IDENTITY_AND_NAME && user.id !== ownUserId
-    )
+export const visibleChatUsersSelector = createSelector([usersSelector], (users) =>
+  users.filter(
+    (user) =>
+      user.name !== DELETED_USER_IDENTITY_AND_NAME && !hasTemporaryUserName(user)
+  )
 );
 
-// returns all mentionable users including own user, excluding only deleted placeholders
-export const mentionableUsersSelector = createSelector([usersSelector], (users) =>
-  users.filter((user) => user.name !== DELETED_USER_IDENTITY_AND_NAME)
+// returns all users except the own user and deleted users
+export const filteredUsersSelector = createSelector(
+  [visibleChatUsersSelector, ownUserIdSelector],
+  (users, ownUserId) =>
+    users.filter((user) => user.id !== ownUserId)
+);
+
+// returns all mentionable users including own user, excluding deleted placeholders and pending users
+export const mentionableUsersSelector = createSelector([visibleChatUsersSelector], (users) =>
+  users
 );
 
 export const ownUserSelector = createSelector(
