@@ -1,12 +1,14 @@
 import {
   ActivityLogType,
   DEFAULT_ROLE_RANK,
+  DEFAULT_ROLE_PERMISSIONS,
   DEFAULT_ROLE_SCOPE,
   Permission,
   createDefaultRoleAbilities,
   createDefaultRoleLimits
 } from '@connectmessager/shared';
 import { db } from '../../db';
+import { syncRolePermissions } from '../../db/mutations/roles';
 import { publishRole } from '../../db/publishers';
 import { roles } from '../../db/schema';
 import { enqueueActivityLog } from '../../queues/activity-log';
@@ -37,6 +39,8 @@ const addRoleRoute = protectedProcedure.mutation(async ({ ctx }) => {
     })
     .returning()
     .get();
+
+  await syncRolePermissions(role.id, DEFAULT_ROLE_PERMISSIONS);
 
   publishRole(role.id, 'create');
   enqueueActivityLog({

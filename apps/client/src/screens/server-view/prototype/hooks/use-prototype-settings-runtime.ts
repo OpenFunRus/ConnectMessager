@@ -1,7 +1,7 @@
 import { getTRPCClient } from '@/lib/trpc';
 import { uploadFile } from '@/helpers/upload-file';
 import type { TFile } from '@connectmessager/shared';
-import { Permission } from '@connectmessager/shared';
+import { DEFAULT_ROLE_PERMISSIONS, Permission } from '@connectmessager/shared';
 import { FILTER_ALL, SETTINGS_ROLE_COLOR_POOL, SETTINGS_TO_SERVER_PERMISSION_MAP } from '../constants';
 import type { TSettingsPermissions, TSettingsRole, TSettingsUser } from '../types';
 import {
@@ -571,7 +571,10 @@ const usePrototypeSettingsRuntime = ({
       basePermissions: string[],
       draftPermissions: TSettingsRole['permissions']
     ) => {
-      const next = new Set(basePermissions);
+      const next = new Set<Permission>([
+        ...DEFAULT_ROLE_PERMISSIONS,
+        ...(basePermissions as Permission[])
+      ]);
       next.delete(Permission.MANAGE_SETTINGS);
       next.delete(Permission.MANAGE_ROLES);
       next.delete(Permission.MANAGE_INVITES);

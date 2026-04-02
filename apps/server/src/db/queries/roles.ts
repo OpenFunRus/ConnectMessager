@@ -1,4 +1,9 @@
-import type { Permission, TJoinedRole, TRole } from '@connectmessager/shared';
+import {
+  DEFAULT_ROLE_PERMISSIONS,
+  type Permission,
+  type TJoinedRole,
+  type TRole
+} from '@connectmessager/shared';
 import { eq, getTableColumns, sql } from 'drizzle-orm';
 import { db } from '..';
 import { rolePermissions, roles, userRoles } from '../schema';
@@ -13,12 +18,16 @@ const roleSelectFields = {
   )
 };
 
-const parseRole = (role: TQueryResult): TJoinedRole => ({
-  ...role,
-  permissions: role.permissions
+const parseRole = (role: TQueryResult): TJoinedRole => {
+  const permissions = role.permissions
     ? (role.permissions.split(',') as Permission[])
-    : []
-});
+    : DEFAULT_ROLE_PERMISSIONS;
+
+  return {
+    ...role,
+    permissions
+  };
+};
 
 const getDefaultRole = async (): Promise<TRole | undefined> =>
   db.select().from(roles).where(eq(roles.isDefault, true)).get();

@@ -1,4 +1,8 @@
-import type { Permission, TJoinedRole } from '@connectmessager/shared';
+import {
+  DEFAULT_ROLE_PERMISSIONS,
+  type Permission,
+  type TJoinedRole
+} from '@connectmessager/shared';
 import { eq } from 'drizzle-orm';
 import { db } from '../../db';
 import { rolePermissions, roles, userRoles } from '../../db/schema';
@@ -33,7 +37,10 @@ const getUserRoles = async (userId: number): Promise<TJoinedRole[]> => {
     }
   }
 
-  return Array.from(rolesMap.values());
+  return Array.from(rolesMap.values()).map((role) => ({
+    ...role,
+    permissions: role.permissions.length > 0 ? role.permissions : DEFAULT_ROLE_PERMISSIONS
+  }));
 };
 
 export { getUserRoles };
