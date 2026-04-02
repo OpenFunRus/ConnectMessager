@@ -1,4 +1,4 @@
-﻿import {
+import {
   useAdminChannelGeneral,
   useAdminChannelPermissions
 } from '@/features/server/admin/hooks';
@@ -80,6 +80,7 @@ const ChannelPermissions = memo(({ channelId }: TChannelPermissionsProps) => {
         <div className="flex gap-6">
           <OverridesList
             channelId={channelId}
+            channelType={channel?.type}
             rolePermissions={rolePermissions}
             userPermissions={userPermissions}
             selectedOverrideId={selectedOverrideId}

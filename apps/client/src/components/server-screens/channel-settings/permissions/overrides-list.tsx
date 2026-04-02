@@ -1,10 +1,12 @@
-﻿import { useRoleById } from '@/features/server/roles/hooks';
+import { useRoleById } from '@/features/server/roles/hooks';
 import { useUserById } from '@/features/server/users/hooks';
 import { getAvatarFallbackStyle } from '@/helpers/get-avatar-fallback-style';
 import { getInitialsFromName } from '@/helpers/get-initials-from-name';
 import { getTRPCClient } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import type {
+  ChannelType,
+  ChannelPermission,
   TChannelRolePermission,
   TChannelUserPermission
 } from '@connectmessager/shared';
@@ -169,6 +171,7 @@ const UsersSection = memo(
 
 type TOverridesListProps = {
   channelId: number;
+  channelType?: ChannelType;
   rolePermissions: TChannelRolePermission[];
   userPermissions: TChannelUserPermission[];
   selectedOverrideId: string | undefined;
@@ -176,8 +179,19 @@ type TOverridesListProps = {
   refetch: () => Promise<void>;
 };
 
+const getDefaultPermissionsForChannelType = (
+  channelType?: ChannelType
+): ChannelPermission[] => {
+  if (channelType === 'VOICE') {
+    return ['VIEW_CHANNEL', 'JOIN', 'SPEAK'];
+  }
+
+  return ['VIEW_CHANNEL', 'SEND_MESSAGES'];
+};
+
 const OverridesList = memo(
   ({
+    channelType,
     rolePermissions,
     userPermissions,
     selectedOverrideId,
@@ -201,6 +215,7 @@ const OverridesList = memo(
     const onSelect = useCallback(
       async (type: TChannelPermissionType, targetId: number) => {
         const trpc = getTRPCClient();
+        const defaultPermissions = getDefaultPermissionsForChannelType(channelType);
 
         try {
           const payload = {
@@ -215,7 +230,7 @@ const OverridesList = memo(
 
           await trpc.channels.updatePermissions.mutate({
             ...payload,
-            isCreate: true
+            permissions: defaultPermissions
           });
 
           toast.success(t('permissionOverrideAdded'));
@@ -227,7 +242,7 @@ const OverridesList = memo(
           toast.error(getTrpcError(error, t('failedAddPermissionOverride')));
         }
       },
-      [channelId, setSelectedOverrideId, refetch, t]
+      [channelId, channelType, setSelectedOverrideId, refetch, t]
     );
 
     return (
