@@ -91,9 +91,8 @@ const AutoLoginController = memo(() => {
       LocalStorageKey.AUTO_LOGIN
     );
     const savedIdentity = getLocalStorageItem(LocalStorageKey.CM_USER_ID);
-    const savedIp = getLocalStorageItem(LocalStorageKey.CM_USER_IP);
 
-    if (!autoLoginEnabled || !savedIdentity || !savedIp) {
+    if (!autoLoginEnabled || !savedIdentity) {
       if (retryTimeout.current) {
         clearTimeout(retryTimeout.current);
         retryTimeout.current = null;
@@ -153,8 +152,7 @@ const AutoLoginController = memo(() => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            identity: savedIdentity,
-            ip: savedIp
+            identity: savedIdentity
           }),
           signal: controller.signal
         }).finally(() => {
@@ -165,11 +163,8 @@ const AutoLoginController = memo(() => {
           let reason = 'restore-login-failed';
           try {
             const errorData = (await response.json()) as {
-              errors?: Partial<Record<'ip' | 'identity', string>>;
+              errors?: Partial<Record<'identity', string>>;
             };
-            if (errorData.errors?.ip) {
-              reason = 'ip-mismatch';
-            }
             if (errorData.errors?.identity) {
               reason = 'identity-invalid';
             }
@@ -183,10 +178,6 @@ const AutoLoginController = memo(() => {
 
         setSessionStorageItem(SessionStorageKey.TOKEN, data.token);
         setLocalStorageItem(LocalStorageKey.AUTO_LOGIN_TOKEN, data.token);
-        if (data.ip) {
-          setLocalStorageItem(LocalStorageKey.CM_USER_IP, data.ip);
-        }
-
         const info = await fetchServerInfo();
         if (info) {
           setInfo(info);
@@ -200,10 +191,9 @@ const AutoLoginController = memo(() => {
       } catch (error: unknown) {
         const reason = error instanceof Error ? error.message : 'unknown-error';
 
-        if (reason === 'ip-mismatch' || reason === 'identity-invalid') {
+        if (reason === 'identity-invalid') {
           removeLocalStorageItem(LocalStorageKey.AUTO_LOGIN_TOKEN);
           removeLocalStorageItem(LocalStorageKey.CM_USER_ID);
-          removeLocalStorageItem(LocalStorageKey.CM_USER_IP);
           setLocalStorageItemBool(LocalStorageKey.AUTO_LOGIN, false);
           setDisconnectInfo(undefined);
           setIsAutoConnecting(false);

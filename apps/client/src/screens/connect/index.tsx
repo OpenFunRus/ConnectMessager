@@ -64,16 +64,13 @@ const Connect = memo(() => {
   const isFirstRunSetup = info?.setupRequired ?? false;
 
   const finalizeLogin = useCallback(
-    async (identity: string, token: string, ip?: string | null) => {
+    async (identity: string, token: string) => {
       const trimmedIdentity = identity.trim();
       setSessionStorageItem(SessionStorageKey.TOKEN, token);
       setLocalStorageItemBool(LocalStorageKey.AUTO_LOGIN, true);
       setLocalStorageItem(LocalStorageKey.IDENTITY, trimmedIdentity);
       setLocalStorageItem(LocalStorageKey.AUTO_LOGIN_TOKEN, token);
       setLocalStorageItem(LocalStorageKey.CM_USER_ID, trimmedIdentity);
-      if (ip) {
-        setLocalStorageItem(LocalStorageKey.CM_USER_IP, ip);
-      }
       await connect();
     },
     []
@@ -153,7 +150,7 @@ const Connect = memo(() => {
       }
 
       const data = (await response.json()) as TLoginSuccessResponse;
-      await finalizeLogin(data.identity || identity, data.token, data.ip);
+      await finalizeLogin(data.identity || identity, data.token);
     } catch (error) {
       const rawErrorMessage =
         error instanceof Error ? error.message : String(error);
