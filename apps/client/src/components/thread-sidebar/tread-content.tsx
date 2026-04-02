@@ -1,0 +1,95 @@
+﻿import { useTypingUsersByThreadId } from '@/features/server/hooks';
+import { useThreadMessages } from '@/features/server/messages/hooks';
+import { Spinner } from '@connectmessager/ui';
+import { MessageSquareText } from 'lucide-react';
+import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useScrollController } from '../channel-view/text/hooks/use-scroll-controller';
+import { MessagesGroup } from '../channel-view/text/messages-group';
+import { ParentMessagePreview } from './parent-message-preview';
+import { ThreadCompose } from './thread-compose';
+import { ThreadHeader } from './thread-header';
+
+type TThreadContentProps = {
+  parentMessageId: number;
+  channelId: number;
+};
+
+const ThreadContent = memo(
+  ({ parentMessageId, channelId }: TThreadContentProps) => {
+    const { t } = useTranslation('common');
+    const { messages, hasMore, loadMore, loading, fetching, groupedMessages } =
+      useThreadMessages(parentMessageId);
+
+    const typingUsers = useTypingUsersByThreadId(parentMessageId);
+
+    const { containerRef, onScroll } = useScrollController({
+      messages,
+      fetching,
+      hasMore,
+      loadMore,
+      hasTypingUsers: typingUsers.length > 0
+    });
+
+    return (
+      <div className="flex flex-col h-full w-full">
+        <ThreadHeader />
+        <ParentMessagePreview messageId={parentMessageId} />
+
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <Spinner size="sm" />
+            </div>
+          ) : (
+            <>
+              {fetching && (
+                <div className="h-8 flex items-center justify-center shrink-0">
+                  <Spinner size="xs" />
+                </div>
+              )}
+
+              <div
+                ref={containerRef}
+                onScroll={onScroll}
+                className="flex-1 overflow-y-auto overflow-x-hidden p-2 animate-in fade-in duration-500"
+              >
+                {messages.length === 0 && !fetching ? (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-sm">
+                    <MessageSquareText className="h-8 w-8 mb-2 opacity-50" />
+                    <p>{t('noRepliesYet')}</p>
+                    <p className="text-xs">{t('beFirstToReply')}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {groupedMessages.map((group) => {
+                      const firstId = group[0]?.id ?? 'group-start';
+                      const lastId = group[group.length - 1]?.id ?? 'group-end';
+
+                      return (
+                        <MessagesGroup
+                          key={`${firstId}-${lastId}`}
+                          group={group}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          <ThreadCompose
+            parentMessageId={parentMessageId}
+            channelId={channelId}
+            typingUsers={typingUsers}
+          />
+        </div>
+      </div>
+    );
+  }
+);
+
+export { ThreadContent };
+
+

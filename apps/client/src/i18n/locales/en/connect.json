@@ -1,0 +1,28 @@
+﻿{
+  "identityLabel": "Login",
+  "identityHelp": "A unique identifier for your account on this server. You can use whatever you like, such as an email address or a username. This won't be shared publicly.",
+  "passwordLabel": "Password",
+  "autoLoginLabel": "Remember me",
+  "insecureTitle": "Insecure Connection",
+  "insecureDesc": "You are accessing the server over an insecure connection (HTTP). By default, browsers block access to media devices such as your camera and microphone on insecure origins. This means that you won't be able to use video or voice chat features while connected to the server over HTTP. If you are the server administrator, you can set up HTTPS by following the instructions in the documentation.",
+  "connectBtn": "Sign in",
+  "loginSubtitle": "Use your login and password to sign in to the server.",
+  "heroBadge": "Secure team messenger",
+  "featurePrivateTitle": "Privacy",
+  "featurePrivateDesc": "Local server and your data stay under full control.",
+  "featureFastTitle": "Convenience",
+  "featureFastDesc": "Optimized for daily sign-in from desktop and phone.",
+  "registrationDisabled": "New user registrations are currently disabled. If you do not have an account yet, you need to be invited by an existing user to join this server.",
+  "invitedTitle": "You were invited to join this server",
+  "inviteCode": "Invite code: {{code}}",
+  "serverNameDialogTitle": "Enter your server name",
+  "serverNameDialogDesc": "This is the name other members will see on the server. This field is required.",
+  "serverNamePlaceholder": "For example, 12345",
+  "serverNameRequired": "Server name is required",
+  "serverNameConfirmBtn": "Continue",
+  "connectError": "Could not connect: {{message}}",
+  "loggingInAutomatically": "Logging in automatically...",
+  "loadingApp": "Loading Connect Messager",
+  "loadingPlugins": "Loading Plugins"
+}
+

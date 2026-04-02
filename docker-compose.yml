@@ -1,0 +1,20 @@
+services:
+  connectmessager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: connectmessager
+    restart: unless-stopped
+    environment:
+      CONNECTMESSAGER_PORT: "4991"
+      CONNECTMESSAGER_WEBRTC_PORT: "40000"
+      CONNECTMESSAGER_WEBRTC_ANNOUNCED_ADDRESS: "your.public.ip.or.domain"
+      PUID: "1000"
+      PGID: "1000"
+    ports:
+      - "4991:4991"
+      - "40000:40000/tcp"
+      - "40000:40000/udp"
+    volumes:
+      - ./data:/home/bun/.config/connectmessenger
+

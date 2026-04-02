@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connect Messager - Вход</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-shell" aria-label="Форма входа">
+      <div class="login-brand">
+        <img class="icon-img login-brand-icon" src="./icons/tabler/messages.svg" alt="" aria-hidden="true" />
+        <h1>Мессенджер Коннект</h1>
+      </div>
+
+      <form class="login-form" action="#" method="post">
+        <label class="login-label" for="branchInput">
+          Введите ваш адрес филиала или ваше Имя
+        </label>
+        <input
+          id="branchInput"
+          class="login-input"
+          type="text"
+          name="branch"
+          placeholder="Например: Кирова 304а"
+          autocomplete="organization"
+          required
+        />
+
+        <label class="login-label" for="accessCodeInput">
+          Введите 8 цифр для доступа
+        </label>
+        <input
+          id="accessCodeInput"
+          class="login-input"
+          type="password"
+          name="accessCode"
+          placeholder="Запросите код у куратора вашего города"
+          inputmode="numeric"
+          pattern="[0-9]{8}"
+          maxlength="8"
+          minlength="8"
+          autocomplete="one-time-code"
+          required
+        />
+
+        <button class="login-submit" type="submit">Вход</button>
+      </form>
+    </main>
+  </body>
+</html>

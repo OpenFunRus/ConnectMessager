@@ -1,0 +1,10 @@
+﻿{
+  "name": "plugin-invalid-package",
+  "version": "not-a-valid-version",
+  "connectmessager": {
+    "entry": "index.js",
+    "description": "Invalid package.json"
+  }
+}
+
+

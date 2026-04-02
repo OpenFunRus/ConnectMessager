@@ -1,0 +1,22 @@
+{
+  "closeVoiceChat": "Закрыть голосовой чат",
+  "openVoiceChat": "Открыть голосовой чат",
+  "openSidebar": "Открыть левое меню",
+  "closeSidebar": "Скрыть левое меню",
+  "closeMembersSidebar": "Закрыть список участников",
+  "openMembersSidebar": "Открыть список участников",
+  "searchContent": "Поиск по содержимому...",
+  "streamSettingsTitle": "Настройки потока",
+  "volumeLabel": "Громкость",
+  "voiceOptions": "Параметры голоса",
+  "hideNonVideoParticipants": "Скрывать участников без видео",
+  "displayUserBanners": "Показывать баннеры пользователей",
+  "audioControls": "Управление аудио",
+  "stream_one": "поток",
+  "stream_few": "потока",
+  "stream_many": "потоков",
+  "stream_other": "потока",
+  "noRemoteAudioStreams": "Удаленные аудиопотоки недоступны.",
+  "volumeControls": "Управление громкостью",
+  "externalAudio": "Внешнее аудио"
+}

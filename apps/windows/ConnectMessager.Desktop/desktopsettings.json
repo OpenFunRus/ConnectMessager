@@ -1,0 +1,11 @@
+{
+  "appName": "ConnectMessager (Мессенджер Коннект)",
+  "environmentName": "test",
+  "startUrl": "https://testpobeda.duckdns.org/",
+  "userDataFolder": "data\\webview",
+  "enableDevTools": false,
+  "enableDefaultContextMenus": true,
+  "trustedOrigins": [
+    "https://testpobeda.duckdns.org"
+  ]
+}

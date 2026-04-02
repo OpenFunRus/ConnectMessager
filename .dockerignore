@@ -1,0 +1,10 @@
+﻿.git
+.github
+node_modules
+apps/client/dist
+apps/server/build/out
+apps/server/build/temp
+data
+connectmessager-development.zip
+*.log
+

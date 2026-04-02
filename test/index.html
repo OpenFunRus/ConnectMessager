@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connect Messager - UI Draft</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <header class="tabs" aria-label="Меню разделов">
+        <button
+          class="tab active"
+          data-tab="contacts"
+          type="button"
+          aria-label="Контакты"
+          title="Контакты"
+        >
+          <img class="icon-img" src="./icons/tabler/user.svg" alt="" aria-hidden="true" />
+        </button>
+        <button
+          class="tab"
+          data-tab="groups"
+          type="button"
+          aria-label="Группы"
+          title="Группы"
+        >
+          <img class="icon-img" src="./icons/tabler/users-group.svg" alt="" aria-hidden="true" />
+        </button>
+        <button
+          class="tab disabled"
+          data-tab="bots"
+          type="button"
+          aria-label="Боты"
+          title="Боты"
+        >
+          <img class="icon-img" src="./icons/tabler/robot.svg" alt="" aria-hidden="true" />
+        </button>
+        <button
+          class="tab disabled"
+          data-tab="other"
+          type="button"
+          aria-label="Другое"
+          title="Другое"
+        >
+          <img class="icon-img" src="./icons/tabler/dots.svg" alt="" aria-hidden="true" />
+        </button>
+      </header>
+
+      <header class="service-menu" aria-label="Служебное меню">
+        <div class="service-brand">
+          <img class="icon-img service-brand-icon" src="./icons/tabler/messages.svg" alt="" aria-hidden="true" />
+          <div class="service-brand-text">
+            <strong>Мессенджер Коннект</strong>
+            <span>версия 0.0.0.1</span>
+          </div>
+        </div>
+        <div class="service-actions">
+          <button
+            id="serviceNotifyBtn"
+            class="service-notify-btn"
+            type="button"
+            aria-label="Уведомления"
+            title="Уведомления"
+          >
+            <img class="icon-img" src="./icons/tabler/bell.svg" alt="" aria-hidden="true" />
+          </button>
+          <button
+            id="serviceSettingsBtn"
+            class="service-settings-btn"
+            type="button"
+            aria-label="Служебные настройки"
+            title="Служебные настройки"
+          >
+            <img class="icon-img" src="./icons/tabler/settings.svg" alt="" aria-hidden="true" />
+          </button>
+        </div>
+        <aside id="notifyPanel" class="notify-panel hidden" aria-label="Уведомления">
+          <div class="notify-panel-header">
+            <h3>Уведомления</h3>
+            <button id="closeNotifyBtn" type="button" aria-label="Закрыть уведомления">
+              <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+            </button>
+          </div>
+          <div id="notifyList" class="notify-list"></div>
+        </aside>
+      </header>
+
+      <section class="search-left">
+        <label class="hidden" for="entitySearch">Поиск контактов и групп</label>
+        <input id="entitySearch" type="text" placeholder="Поиск по контактам и группам..." />
+      </section>
+
+      <section class="search-right">
+        <label class="hidden" for="messageSearch">Поиск по текстам переписок</label>
+        <input id="messageSearch" type="text" placeholder="Поиск по всем чатам (по тексту)..." />
+      </section>
+
+      <aside class="entities">
+        <ul id="entityList"></ul>
+      </aside>
+
+      <main class="chat-panel">
+        <header class="chat-header">
+          <h2 id="chatTitle">Добро пожаловать в Мессенджер Коннект</h2>
+          <div class="chat-header-actions">
+            <button
+              id="chatCallBtn"
+              class="chat-action-btn"
+              type="button"
+              aria-label="Звонок"
+              title="Звонок (скоро)"
+              disabled
+            >
+              <img class="icon-img" src="./icons/tabler/phone.svg" alt="" aria-hidden="true" />
+            </button>
+            <button
+              id="chatVideoBtn"
+              class="chat-action-btn"
+              type="button"
+              aria-label="Видеозвонок"
+              title="Видеозвонок (скоро)"
+              disabled
+            >
+              <img class="icon-img" src="./icons/tabler/video.svg" alt="" aria-hidden="true" />
+            </button>
+            <button
+              id="chatShareBtn"
+              class="chat-action-btn"
+              type="button"
+              aria-label="Демонстрация экрана"
+              title="Демонстрация экрана (скоро)"
+              disabled
+            >
+              <img class="icon-img" src="./icons/tabler/screen-share.svg" alt="" aria-hidden="true" />
+            </button>
+          </div>
+          <button
+            id="chatPinnedBtn"
+            class="chat-pin-btn"
+            type="button"
+            aria-label="Открыть закрепленные сообщения"
+            title="Закрепленные сообщения"
+          >
+            <img class="icon-img" src="./icons/tabler/pin.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+        <aside id="pinnedPanel" class="pinned-panel hidden" aria-label="Закрепленные сообщения">
+          <div class="pinned-panel-header">
+            <h3>Закрепленные сообщения</h3>
+            <button id="closePinnedBtn" type="button" aria-label="Закрыть закрепленные сообщения">
+              <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+            </button>
+          </div>
+          <div id="pinnedList" class="pinned-list"></div>
+        </aside>
+        <section id="messages" class="messages hidden"></section>
+        <section id="chatPlaceholder" class="placeholder">
+          <p>Выберите контакт или группу для начала общения.</p>
+        </section>
+      </main>
+
+      <footer class="current-user">
+        <div class="user-card">
+          <div class="user-main">
+            <div class="user-avatar">OF</div>
+            <div class="user-meta">
+              <strong>OpenFunRus</strong>
+              <p>в сети</p>
+            </div>
+          </div>
+          <button id="profileSettingsBtn" class="settings-btn" type="button" aria-label="Открыть настройки" title="Настройки">
+            <img class="icon-img" src="./icons/tabler/settings.svg" alt="" aria-hidden="true" />
+          </button>
+        </div>
+      </footer>
+
+      <form id="messageForm" class="composer">
+        <div id="composerInputWrap" class="composer-input-wrap">
+          <button
+            id="expandComposerBtn"
+            class="compose-expand-toggle"
+            type="button"
+            aria-label="Развернуть поле ввода"
+            title="Развернуть поле ввода"
+          >
+            <img class="icon-img" src="./icons/tabler/chevron-up.svg" alt="" aria-hidden="true" />
+          </button>
+          <label class="hidden" for="messageInput">Введите сообщение</label>
+          <textarea
+            id="messageInput"
+            rows="1"
+            placeholder="Введите сообщение..."
+          ></textarea>
+        </div>
+        <button
+          id="emojiToggleBtn"
+          class="icon-btn"
+          type="button"
+          aria-label="Смайлы"
+          title="Смайлы"
+        >
+          <img class="icon-img" src="./icons/tabler/mood-smile.svg" alt="" aria-hidden="true" />
+        </button>
+        <button class="icon-btn" type="button" aria-label="Прикрепить файл" title="Прикрепить файл">
+          <img class="icon-img" src="./icons/tabler/paperclip.svg" alt="" aria-hidden="true" />
+        </button>
+        <button class="send-btn" type="submit" aria-label="Отправить сообщение" title="Отправить">
+          <img class="icon-img" src="./icons/tabler/send.svg" alt="" aria-hidden="true" />
+        </button>
+        <aside id="emojiPanel" class="emoji-panel hidden" aria-label="Выбор эмодзи">
+          <div class="emoji-recent-wrap">
+            <div class="emoji-recent-title">Последние</div>
+            <div id="emojiRecentRow" class="emoji-recent-row"></div>
+          </div>
+          <div id="emojiGrid" class="emoji-grid"></div>
+        </aside>
+      </form>
+    </div>
+
+    <div id="rolesModalBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        id="rolesModal"
+        class="roles-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rolesModalTitle"
+      >
+        <header class="roles-modal-header">
+          <div class="roles-modal-title-wrap">
+            <img class="icon-img" src="./icons/tabler/settings.svg" alt="" aria-hidden="true" />
+            <div>
+              <h3 id="rolesModalTitle">Настройки</h3>
+            </div>
+          </div>
+          <button id="closeRolesModalBtn" type="button" aria-label="Закрыть модалку настроек">
+            <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+
+        <div class="roles-modal-body">
+          <div class="settings-tabs" role="tablist" aria-label="Настройки">
+            <button id="settingsRolesTabBtn" class="settings-tab active" type="button" data-settings-tab="roles">
+              Роли
+            </button>
+            <button id="settingsUsersTabBtn" class="settings-tab" type="button" data-settings-tab="users">
+              Пользователи
+            </button>
+          </div>
+
+          <section id="settingsRolesPanel" class="settings-panel active">
+            <section class="roles-list-wrap">
+              <div class="roles-list-head">
+                <h4>Список ролей</h4>
+                <span id="rolesCountBadge">0 ролей</span>
+              </div>
+              <div id="rolesList" class="roles-list"></div>
+            </section>
+
+            <div class="roles-main-actions">
+              <button id="openAddRoleBtn" class="primary-btn" type="button">Добавить роль</button>
+            </div>
+          </section>
+
+          <section id="settingsUsersPanel" class="settings-panel">
+            <section class="roles-list-wrap">
+              <div class="roles-list-head">
+                <h4>Пользователи</h4>
+                <span id="usersCountBadge">0 пользователей</span>
+              </div>
+              <label class="hidden" for="usersSearchInput">Поиск пользователя по имени</label>
+              <input
+                id="usersSearchInput"
+                class="users-search-input"
+                type="text"
+                placeholder="Поиск пользователя по имени..."
+              />
+              <div id="usersList" class="roles-list"></div>
+            </section>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <div id="roleEditorBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        id="roleEditorModal"
+        class="role-editor-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="roleEditorTitle"
+      >
+        <header class="roles-modal-header">
+          <div class="roles-modal-title-wrap">
+            <img class="icon-img" src="./icons/tabler/settings.svg" alt="" aria-hidden="true" />
+            <div>
+              <h3 id="roleEditorTitle">Добавить роль</h3>
+            </div>
+          </div>
+          <button id="closeRoleEditorBtn" type="button" aria-label="Закрыть модалку роли">
+            <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+
+        <form id="roleEditorForm" class="role-editor-body" autocomplete="off">
+          <label class="roles-field">
+            <span>Название роли</span>
+            <input id="roleEditorNameInput" type="text" required />
+          </label>
+
+          <label class="roles-field">
+            <span>Цвет роли</span>
+            <div class="role-color-select">
+              <button
+                id="roleColorToggleBtn"
+                class="role-color-toggle"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-label="Выбрать цвет роли"
+              >
+                <span id="roleColorToggleSwatch" class="role-color-toggle-swatch"></span>
+                <span id="roleColorToggleText">#2FB344</span>
+              </button>
+              <div id="roleColorMenu" class="role-color-menu hidden" role="listbox" aria-label="Пул цветов роли">
+                <div id="roleColorGrid" class="role-color-grid"></div>
+              </div>
+            </div>
+          </label>
+
+          <label class="roles-field">
+            <span>Ранг роли</span>
+            <input id="roleEditorRankInput" type="number" min="1" max="100" value="40" required />
+          </label>
+
+          <label class="roles-field">
+            <span>Фильтр роли (Глобальный / Фильтр)</span>
+            <select id="roleEditorScopeInput">
+              <option value="global">Глобальный</option>
+              <option value="filter">Фильтр</option>
+            </select>
+          </label>
+
+          <label class="roles-field">
+            <span>Фильтр</span>
+            <input id="roleEditorFilterInput" type="text" placeholder="Города или условия" disabled />
+          </label>
+
+          <section class="roles-section">
+            <h4>Права</h4>
+            <div class="limit-rows">
+              <label class="limit-row single-toggle">
+                <input id="permCanViewSettings" type="checkbox" />
+                <span>Видеть настройки</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="permCanAddRoles" type="checkbox" />
+                <span>Добавлять роли</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="permCanEditRoles" type="checkbox" />
+                <span>Редактировать роли</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="permCanInviteGroups" type="checkbox" />
+                <span>Генерировать пригласительный код группы</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="permCanInviteUsers" type="checkbox" />
+                <span>Генерировать пригласительный код пользователей</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="roles-section">
+            <h4>Ограничения</h4>
+            <div class="limit-rows">
+              <label class="limit-row">
+                <input id="limitMessagesEnabled" type="checkbox" />
+                <span>Ограничивать сообщения в минуту</span>
+                <input id="limitMessagesValue" type="number" value="15" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitRequestsEnabled" type="checkbox" />
+                <span>Ограничивать запросы к серверу</span>
+                <input id="limitRequestsValue" type="number" value="15" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitCharsEnabled" type="checkbox" />
+                <span>Ограничивать символы в сообщении</span>
+                <input id="limitCharsValue" type="number" value="1024" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitLinesEnabled" type="checkbox" />
+                <span>Ограничивать строки в сообщении</span>
+                <input id="limitLinesValue" type="number" value="32" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitFileSizeEnabled" type="checkbox" />
+                <span>Ограничивать размер файлов в сообщении</span>
+                <input id="limitFileSizeValue" type="number" value="3" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitFilesPerMessageEnabled" type="checkbox" />
+                <span>Ограничивать количество файлов в сообщении</span>
+                <input id="limitFilesPerMessageValue" type="number" value="9" min="1" disabled />
+              </label>
+              <label class="limit-row">
+                <input id="limitFormatsEnabled" type="checkbox" />
+                <span>Ограничивать формат файлов в сообщении</span>
+                <input
+                  id="limitFormatsValue"
+                  type="text"
+                  value="pdf, png, jpg, jpeg, xls, xlsx, doc, docx"
+                  disabled
+                />
+              </label>
+            </div>
+          </section>
+
+          <section class="roles-section">
+            <h4>Возможности</h4>
+            <div class="limit-rows">
+              <label class="limit-row single-toggle">
+                <input id="abilityCallEnabled" type="checkbox" />
+                <span>Совершать звонки</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="abilityVideoCallEnabled" type="checkbox" />
+                <span>Совершать видеовызовы</span>
+              </label>
+              <label class="limit-row single-toggle">
+                <input id="abilityRemoteDesktopEnabled" type="checkbox" />
+                <span>Просмотр удалённого рабочего стола</span>
+              </label>
+            </div>
+          </section>
+
+          <div class="roles-form-actions">
+            <button id="cancelRoleEditorBtn" class="ghost-btn" type="button">Отмена</button>
+            <button class="primary-btn" type="submit">Сохранить</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="inviteCodeBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        id="inviteCodeModal"
+        class="invite-code-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="inviteCodeTitle"
+      >
+        <header class="roles-modal-header">
+          <div class="roles-modal-title-wrap">
+            <img class="icon-img" src="./icons/tabler/key.svg" alt="" aria-hidden="true" />
+            <div>
+              <h3 id="inviteCodeTitle">Пригласительный код</h3>
+              <p id="inviteRoleLabel">Роль: —</p>
+            </div>
+          </div>
+          <button id="closeInviteCodeBtn" type="button" aria-label="Закрыть модалку пригласительного кода">
+            <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+
+        <div class="invite-code-body">
+          <div id="inviteCodeDigits" class="invite-code-digits" aria-label="Код приглашения"></div>
+          <div class="invite-code-actions">
+            <button id="regenerateInviteCodeBtn" class="ghost-btn" type="button">
+              <img class="icon-img" src="./icons/tabler/refresh.svg" alt="" aria-hidden="true" />
+              Обновить
+            </button>
+            <button id="copyInviteCodeBtn" class="primary-btn" type="button">
+              <img class="icon-img" src="./icons/tabler/copy.svg" alt="" aria-hidden="true" />
+              Копировать
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="userBanBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        id="userBanModal"
+        class="confirm-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="userBanTitle"
+      >
+        <header class="roles-modal-header">
+          <div class="roles-modal-title-wrap">
+            <img class="icon-img" src="./icons/tabler/ban.svg" alt="" aria-hidden="true" />
+            <div>
+              <h3 id="userBanTitle">Удалить пользователя</h3>
+            </div>
+          </div>
+          <button id="closeUserBanBtn" type="button" aria-label="Закрыть модалку удаления пользователя">
+            <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+        <div class="confirm-modal-body">
+          <p id="userBanWarnText" class="confirm-modal-warning">
+            Вы действительно хотите удалить пользователя? Это удалит всю историю пользователя, все медиафайлы и упоминания.
+          </p>
+          <div class="roles-form-actions">
+            <button id="cancelUserBanBtn" class="ghost-btn" type="button">Отмена</button>
+            <button id="confirmUserBanBtn" class="danger-btn" type="button">Удалить</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="userEditBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        id="userEditModal"
+        class="confirm-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="userEditTitle"
+      >
+        <header class="roles-modal-header">
+          <div class="roles-modal-title-wrap">
+            <img class="icon-img" src="./icons/tabler/pencil.svg" alt="" aria-hidden="true" />
+            <div>
+              <h3 id="userEditTitle">Редактировать пользователя</h3>
+            </div>
+          </div>
+          <button id="closeUserEditBtn" type="button" aria-label="Закрыть модалку редактирования пользователя">
+            <img class="icon-img" src="./icons/tabler/x.svg" alt="" aria-hidden="true" />
+          </button>
+        </header>
+        <form id="userEditForm" class="confirm-modal-body" autocomplete="off">
+          <label class="roles-field">
+            <span>Имя пользователя</span>
+            <input id="userEditNameInput" type="text" required />
+          </label>
+          <div class="roles-form-actions">
+            <button id="cancelUserEditBtn" class="ghost-btn" type="button">Отмена</button>
+            <button class="primary-btn" type="submit">Сохранить</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
