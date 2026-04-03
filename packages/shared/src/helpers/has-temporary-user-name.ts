@@ -11,9 +11,13 @@ const hasTemporaryUserName = (user: TUserNameLike | null | undefined) => {
   const name = (user.name || '').trim().toLowerCase();
   const identity = (user.identity || '').trim().toLowerCase();
 
-  if (!name || !identity) return false;
+  if (!name && !identity) return false;
 
-  return name.startsWith(AUTO_USER_ID_PREFIX) || name === identity;
+  return (
+    name.startsWith(AUTO_USER_ID_PREFIX) ||
+    identity.startsWith(AUTO_USER_ID_PREFIX) ||
+    (!!name && !!identity && name === identity)
+  );
 };
 
 export { hasTemporaryUserName };

@@ -3,6 +3,11 @@ import { useChannels } from '@/features/server/channels/hooks';
 import { requestConfirmation } from '@/features/dialogs/actions';
 import { disconnectFromServer } from '@/features/server/actions';
 import { useInfo, usePublicServerSettings } from '@/features/server/hooks';
+import {
+  isDesktopBridgeAvailable,
+  setDesktopUnreadCount,
+  showDesktopNotification
+} from '@/helpers/desktop-bridge';
 import { uploadFiles } from '@/helpers/upload-file';
 import { getTRPCClient } from '@/lib/trpc';
 import type { TEmojiItem } from '@/components/tiptap-input/helpers';
@@ -763,6 +768,47 @@ const PrototypeInterface = memo(() => {
     ]
   );
 
+  const showDesktopMessageNotification = useCallback(
+    ({
+      chatId,
+      author,
+      text,
+      isMention
+    }: {
+      chatId: string;
+      author: string;
+      text: string;
+      isMention: boolean;
+    }) => {
+      if (!isDesktopBridgeAvailable()) return;
+
+      const appInForeground =
+        document.visibilityState === 'visible' && document.hasFocus();
+      const isActiveChatMessage = activeChatId === chatId;
+
+      if (appInForeground && isActiveChatMessage) {
+        return;
+      }
+
+      const title = isMention ? `Упоминание от ${author}` : `Новое сообщение от ${author}`;
+      const messageText = text.trim() || '[вложение]';
+
+      showDesktopNotification(title, messageText, { chatId });
+    },
+    [activeChatId]
+  );
+
+  useEffect(() => {
+    if (!isDesktopBridgeAvailable()) return;
+
+    const totalUnread =
+      contacts.reduce((sum, user) => sum + getUnreadCountForChat(`contact-${user.id}`), 0) +
+      getUnreadCountForChat(MAIN_GROUP_CHAT_ID) +
+      groupChannels.reduce((sum, channel) => sum + getUnreadCountForChat(getGroupChatId(channel.id)), 0);
+
+    setDesktopUnreadCount(totalUnread);
+  }, [contacts, getUnreadCountForChat, groupChannels]);
+
   useEffect(() => {
     if (!pendingMentionJump) return;
     if (activeChat?.id !== pendingMentionJump.chatId) return;
@@ -798,7 +844,8 @@ const PrototypeInterface = memo(() => {
     consumeVisibleUnreadForChat,
     scheduleScrollToBottom,
     upsertMentionNotification,
-    removeMentionNotification
+    removeMentionNotification,
+    showDesktopMessageNotification
   });
 
   const handleSuccessfulOwnSendToChat = useCallback(

@@ -29,6 +29,12 @@ type TUsePrototypeMessageRealtimeParams = {
   scheduleScrollToBottom: (delay?: number) => void;
   upsertMentionNotification: (item: TMentionNotification) => void;
   removeMentionNotification: (messageId: number) => void;
+  showDesktopMessageNotification: (args: {
+    chatId: string;
+    author: string;
+    text: string;
+    isMention: boolean;
+  }) => void;
 };
 
 const usePrototypeMessageRealtime = ({
@@ -45,7 +51,8 @@ const usePrototypeMessageRealtime = ({
   consumeVisibleUnreadForChat,
   scheduleScrollToBottom,
   upsertMentionNotification,
-  removeMentionNotification
+  removeMentionNotification,
+  showDesktopMessageNotification
 }: TUsePrototypeMessageRealtimeParams) => {
   useEffect(() => {
     if (!ownUserId) return;
@@ -71,6 +78,12 @@ const usePrototypeMessageRealtime = ({
       return chatId;
     };
 
+    const isChatCurrentlyVisible = (chatId: string) =>
+      activeChatId === chatId &&
+      typeof document !== 'undefined' &&
+      document.visibilityState === 'visible' &&
+      document.hasFocus();
+
     const appendIncomingMessage = async (message: TJoinedMessage) => {
       const chatId = await resolveChatIdForChannel(message.channelId);
       if (!chatId) return;
@@ -85,7 +98,12 @@ const usePrototypeMessageRealtime = ({
 
       if (message.userId !== ownUserId) {
         playSound(SoundType.MESSAGE_RECEIVED);
-        if (hasMention(message.content, ownUserId) || hasQuoteForUser(message.content, ownUserId)) {
+        const hasOwnMentionOrQuote =
+          hasMention(message.content, ownUserId) || hasQuoteForUser(message.content, ownUserId);
+        const shouldKeepMentionNotification =
+          hasOwnMentionOrQuote && !isChatCurrentlyVisible(chatId);
+
+        if (shouldKeepMentionNotification) {
           const notificationText = mappedMessage.text || mappedMessage.quote?.text || '';
           upsertMentionNotification({
             messageId: message.id,
@@ -97,7 +115,16 @@ const usePrototypeMessageRealtime = ({
             html: mappedMessage.html,
             createdAt: mappedMessage.createdAt
           });
+        } else if (hasOwnMentionOrQuote) {
+          removeMentionNotification(message.id);
         }
+
+        showDesktopMessageNotification({
+          chatId,
+          author: mappedMessage.author,
+          text: mappedMessage.text || mappedMessage.quote?.text || '',
+          isMention: hasOwnMentionOrQuote
+        });
 
         if (activeChatId !== chatId) {
           addUnreadMessageIds(chatId, [mappedMessage.id]);
@@ -135,10 +162,11 @@ const usePrototypeMessageRealtime = ({
         )
       }));
 
-      if (
+      const hasOwnMentionOrQuote =
         message.userId !== ownUserId &&
-        (hasMention(message.content, ownUserId) || hasQuoteForUser(message.content, ownUserId))
-      ) {
+        (hasMention(message.content, ownUserId) || hasQuoteForUser(message.content, ownUserId));
+
+      if (hasOwnMentionOrQuote && !isChatCurrentlyVisible(chatId)) {
         const notificationText = mappedMessage.text || mappedMessage.quote?.text || '';
         upsertMentionNotification({
           messageId: message.id,
@@ -219,6 +247,7 @@ const usePrototypeMessageRealtime = ({
     scheduleScrollToBottom,
     setMessagesByChatId,
     setServerUnreadDismissedByChatId,
+    showDesktopMessageNotification,
     upsertMentionNotification
   ]);
 };

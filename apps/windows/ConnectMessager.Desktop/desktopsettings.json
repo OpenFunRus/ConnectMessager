@@ -1,11 +1,11 @@
 {
   "appName": "ConnectMessager (Мессенджер Коннект)",
-  "environmentName": "test",
-  "startUrl": "https://testpobeda.duckdns.org/",
+  "environmentName": "production",
+  "startUrl": "https://connectmessager.ru:40500/",
   "userDataFolder": "data\\webview",
   "enableDevTools": false,
   "enableDefaultContextMenus": true,
   "trustedOrigins": [
-    "https://testpobeda.duckdns.org"
+    "https://connectmessager.ru:40500"
   ]
 }

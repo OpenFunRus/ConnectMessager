@@ -1,9 +1,10 @@
-﻿import { useForm } from '@/hooks/use-form';
+import { useForm } from '@/hooks/use-form';
 import { getTRPCClient } from '@/lib/trpc';
 import {
   DELETED_USER_IDENTITY_AND_NAME,
   MESSAGE_DEFAULT_LINES_LIMIT,
   MESSAGE_DEFAULT_TEXT_LENGTH_LIMIT,
+  hasTemporaryUserName,
   parseTrpcErrors,
   STORAGE_DEFAULT_MAX_AVATAR_SIZE,
   STORAGE_DEFAULT_MAX_BANNER_SIZE,
@@ -451,7 +452,8 @@ export const useAdminUsers = () => {
     const users = await trpc.users.getAll.query();
 
     const filteredUsers = users.filter(
-      (user) => user.name !== DELETED_USER_IDENTITY_AND_NAME
+      (user) =>
+        user.name !== DELETED_USER_IDENTITY_AND_NAME && !hasTemporaryUserName(user)
     );
 
     setUsers(filteredUsers);
