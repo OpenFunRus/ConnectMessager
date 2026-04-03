@@ -4,6 +4,7 @@ import { requestConfirmation } from '@/features/dialogs/actions';
 import { disconnectFromServer } from '@/features/server/actions';
 import { useInfo, usePublicServerSettings } from '@/features/server/hooks';
 import {
+  flashDesktopWindow,
   isDesktopBridgeAvailable,
   setDesktopUnreadCount,
   showDesktopNotification
@@ -507,20 +508,41 @@ const PrototypeInterface = memo(() => {
   });
   const [isMentionPopoverOpen, setIsMentionPopoverOpen] = useState(false);
   const [mentionNotifications, setMentionNotifications] = useState<TMentionNotification[]>([]);
+  const notifiedMentionIdsRef = useRef<Set<number>>(new Set());
   const [pendingMentionJump, setPendingMentionJump] = useState<{
     chatId: string;
     messageId: number;
   } | null>(null);
 
+  const showDesktopMentionNotification = useCallback((item: TMentionNotification) => {
+    if (!isDesktopBridgeAvailable()) return;
+
+    const title = `Упоминание от ${item.author}`;
+    const messageText = item.text.trim() || '[вложение]';
+
+    showDesktopNotification(title, messageText, {
+      chatId: item.chatId
+    });
+    flashDesktopWindow();
+  }, []);
+
   const upsertMentionNotification = useCallback((item: TMentionNotification) => {
+    const isNewMention = !notifiedMentionIdsRef.current.has(item.messageId);
+
     setMentionNotifications((prev) =>
       [item, ...prev.filter((entry) => entry.messageId !== item.messageId)].sort(
         (a, b) => b.createdAt - a.createdAt
       )
     );
-  }, []);
+
+    if (isNewMention) {
+      notifiedMentionIdsRef.current.add(item.messageId);
+      showDesktopMentionNotification(item);
+    }
+  }, [showDesktopMentionNotification]);
 
   const removeMentionNotification = useCallback((messageId: number) => {
+    notifiedMentionIdsRef.current.delete(messageId);
     setMentionNotifications((prev) =>
       prev.filter((entry) => entry.messageId !== messageId)
     );
@@ -780,6 +802,7 @@ const PrototypeInterface = memo(() => {
       text: string;
       isMention: boolean;
     }) => {
+      if (isMention) return;
       if (!isDesktopBridgeAvailable()) return;
 
       const appInForeground =

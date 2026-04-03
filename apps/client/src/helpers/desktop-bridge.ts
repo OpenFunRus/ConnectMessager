@@ -7,6 +7,7 @@ type TDesktopNotificationOptions = {
 type TDesktopBridge = {
   notify: (title: string, message: string, options?: TDesktopNotificationOptions) => boolean;
   setUnreadCount: (count: number) => boolean;
+  flashWindow: () => boolean;
 };
 
 declare global {
@@ -35,4 +36,13 @@ const setDesktopUnreadCount = (count: number) => {
   return getDesktopBridge()?.setUnreadCount(Math.max(0, count)) ?? false;
 };
 
-export { isDesktopBridgeAvailable, setDesktopUnreadCount, showDesktopNotification };
+const flashDesktopWindow = () => {
+  return getDesktopBridge()?.flashWindow() ?? false;
+};
+
+export {
+  flashDesktopWindow,
+  isDesktopBridgeAvailable,
+  setDesktopUnreadCount,
+  showDesktopNotification
+};

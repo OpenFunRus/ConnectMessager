@@ -1,5 +1,10 @@
-using System.Drawing;
 using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
+using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
 namespace ConnectMessager.Desktop.Services;
@@ -7,11 +12,15 @@ namespace ConnectMessager.Desktop.Services;
 public sealed class NativeNotificationService : IDisposable
 {
     private readonly string _appName;
+    private readonly Action _openAction;
     private readonly Forms.NotifyIcon _notifyIcon;
+    private Window? _toastWindow;
+    private DispatcherTimer? _toastTimer;
 
     public NativeNotificationService(string appName, Action openAction, Action reloadAction, Action exitAction)
     {
         _appName = appName;
+        _openAction = openAction;
         _notifyIcon = new Forms.NotifyIcon
         {
             Visible = true,
@@ -26,9 +35,13 @@ public sealed class NativeNotificationService : IDisposable
 
     public void ShowBalloon(string title, string message)
     {
-        _notifyIcon.BalloonTipTitle = string.IsNullOrWhiteSpace(title) ? _appName : title;
-        _notifyIcon.BalloonTipText = string.IsNullOrWhiteSpace(message) ? "Новое событие в ConnectMessager" : message;
+        var safeTitle = string.IsNullOrWhiteSpace(title) ? _appName : title;
+        var safeMessage = string.IsNullOrWhiteSpace(message) ? "Новое событие в ConnectMessager" : message;
+
+        _notifyIcon.BalloonTipTitle = safeTitle;
+        _notifyIcon.BalloonTipText = safeMessage;
         _notifyIcon.ShowBalloonTip(5000);
+        ShowToastWindow(safeTitle, safeMessage);
     }
 
     public void UpdateUnreadCount(int count)
@@ -40,8 +53,119 @@ public sealed class NativeNotificationService : IDisposable
 
     public void Dispose()
     {
+        _toastTimer?.Stop();
+        _toastTimer = null;
+
+        if (_toastWindow is not null)
+        {
+            _toastWindow.Close();
+            _toastWindow = null;
+        }
+
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
+    }
+
+    private void ShowToastWindow(string title, string message)
+    {
+        _toastTimer?.Stop();
+
+        if (_toastWindow is not null)
+        {
+            _toastWindow.Close();
+            _toastWindow = null;
+        }
+
+        var titleText = new TextBlock
+        {
+            Text = title,
+            Foreground = System.Windows.Media.Brushes.White,
+            FontSize = 15,
+            FontWeight = FontWeights.SemiBold,
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        var bodyText = new TextBlock
+        {
+            Margin = new Thickness(0, 8, 0, 0),
+            Text = message,
+            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(214, 225, 236)),
+            FontSize = 13,
+            TextWrapping = TextWrapping.Wrap,
+            MaxHeight = 120
+        };
+
+        var toastBody = new Border
+        {
+            Width = 340,
+            Padding = new Thickness(16, 14, 16, 14),
+            CornerRadius = new CornerRadius(14),
+            Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(245, 17, 26, 36)),
+            BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(62, 88, 112)),
+            BorderThickness = new Thickness(1),
+            Child = new StackPanel
+            {
+                Children =
+                {
+                    titleText,
+                    bodyText
+                }
+            }
+        };
+
+        var toastWindow = new Window
+        {
+            Width = 340,
+            SizeToContent = SizeToContent.Height,
+            ShowInTaskbar = false,
+            ShowActivated = false,
+            Topmost = true,
+            ResizeMode = ResizeMode.NoResize,
+            WindowStyle = WindowStyle.None,
+            AllowsTransparency = true,
+            Background = System.Windows.Media.Brushes.Transparent,
+            Content = toastBody
+        };
+
+        toastWindow.Loaded += (_, _) =>
+        {
+            var workArea = SystemParameters.WorkArea;
+            toastWindow.Left = workArea.Right - toastWindow.ActualWidth - 16;
+            toastWindow.Top = workArea.Bottom - toastWindow.ActualHeight - 16;
+        };
+
+        toastWindow.MouseLeftButtonUp += (_, _) =>
+        {
+            _openAction();
+            toastWindow.Close();
+        };
+
+        toastWindow.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_toastWindow, toastWindow))
+            {
+                _toastWindow = null;
+            }
+        };
+
+        _toastWindow = toastWindow;
+        toastWindow.Show();
+
+        _toastTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(5)
+        };
+        _toastTimer.Tick += (_, _) =>
+        {
+            _toastTimer?.Stop();
+            _toastTimer = null;
+
+            if (ReferenceEquals(_toastWindow, toastWindow))
+            {
+                toastWindow.Close();
+            }
+        };
+        _toastTimer.Start();
     }
 
     private Forms.ContextMenuStrip BuildMenu(Action openAction, Action reloadAction, Action exitAction)
@@ -54,14 +178,14 @@ public sealed class NativeNotificationService : IDisposable
         return menu;
     }
 
-    private static Icon ResolveApplicationIcon()
+    private static Drawing.Icon ResolveApplicationIcon()
     {
         try
         {
             var processPath = Environment.ProcessPath;
             if (!string.IsNullOrWhiteSpace(processPath) && File.Exists(processPath))
             {
-                var extractedIcon = Icon.ExtractAssociatedIcon(processPath);
+                var extractedIcon = Drawing.Icon.ExtractAssociatedIcon(processPath);
                 if (extractedIcon is not null)
                 {
                     return extractedIcon;
@@ -73,6 +197,6 @@ public sealed class NativeNotificationService : IDisposable
             // Fallback to a default system icon if icon extraction fails.
         }
 
-        return SystemIcons.Application;
+        return Drawing.SystemIcons.Application;
     }
 }
